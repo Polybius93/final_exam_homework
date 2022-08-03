@@ -70,8 +70,63 @@ VALUES (DEFAULT , 'ACTION COMICS #?', 'Example Description', 'https://davescomic
 INSERT INTO items (id, name, description, photo_url, starting_price, purchase_price, sold, user_id )
 VALUES (DEFAULT , 'BATMAN SUPERMAN WORLDS FINEST #4', 'As Robin and Supergirl race to retrieve the secrets of the Devil Nezha from ancient China, Batman and Superman get more than they bargained for in the present!', 'https://davescomicshop.com/wp-content/uploads/2022/07/STL230652.jpg', 159, 1599, false, 1);
 
-INSERT INTO BIDS (id, item_value, user_id, item_id)
-VALUES (DEFAULT , 159, 1, 1);
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 219, 1, 1);
 
-INSERT INTO BIDS (id, item_value, user_id, item_id)
-VALUES (DEFAULT , 169, 2, 1);
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 2);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 3);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 4);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 5);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 6);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 7);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 8);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 9);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 10);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 11);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 12);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 13);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 14);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 15);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 16);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 17);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 18);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 129, 1, 19);
+
+INSERT INTO BIDS (id, bid_value, user_id, item_id)
+VALUES (DEFAULT , 159, 1, 20);
+

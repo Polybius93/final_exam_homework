@@ -85,7 +85,7 @@ public class ItemServiceImpl implements ItemService {
         ForSaleItemResponseMainInformationDTO forSaleItemResponseMainInformationDTO = new ForSaleItemResponseMainInformationDTO();
         List<Bid> lastBid = bidRepository.findLastBid(item.getId());
         modelMapper.map(item, forSaleItemResponseMainInformationDTO);
-        forSaleItemResponseMainInformationDTO.setLastBid(lastBid.get(0).getId());
+        forSaleItemResponseMainInformationDTO.setLastBid(lastBid.get(0).getValue());
         return forSaleItemResponseMainInformationDTO;
     }
 

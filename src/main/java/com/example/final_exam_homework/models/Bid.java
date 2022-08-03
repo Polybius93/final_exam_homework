@@ -10,7 +10,7 @@ public class Bid {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long value;
+    private Long bidValue;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     private User user;
@@ -30,11 +30,11 @@ public class Bid {
     }
 
     public Long getValue() {
-        return value;
+        return bidValue;
     }
 
     public void setValue(Long value) {
-        this.value = value;
+        this.bidValue = value;
     }
 
     public User getUser() {
