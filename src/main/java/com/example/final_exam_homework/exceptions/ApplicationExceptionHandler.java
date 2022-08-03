@@ -80,4 +80,10 @@ public class ApplicationExceptionHandler {
     private ErrorDTO handleInvalidPriceException(RuntimeException exception) {
         return new ErrorDTO(exception.getMessage());
     }
+
+    @ExceptionHandler(InvalidPageException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    private ErrorDTO InvalidPageException(RuntimeException exception) {
+        return new ErrorDTO(exception.getMessage());
+    }
 }

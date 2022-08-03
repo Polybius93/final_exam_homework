@@ -2,13 +2,8 @@ package com.example.final_exam_homework.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "items")
@@ -27,6 +22,10 @@ public class Item {
     private String photoUrl;
     private int startingPrice;
     private int purchasePrice;
+    private boolean sold;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "item")
+    private List<Bid> bidList;
 
     public Item() {}
 
@@ -84,5 +83,21 @@ public class Item {
 
     public void setPurchasePrice(int purchasePrice) {
         this.purchasePrice = purchasePrice;
+    }
+
+    public boolean isSold() {
+        return sold;
+    }
+
+    public void setSold(boolean sold) {
+        this.sold = sold;
+    }
+
+    public List<Bid> getBidList() {
+        return bidList;
+    }
+
+    public void setBidList(List<Bid> bidList) {
+        this.bidList = bidList;
     }
 }

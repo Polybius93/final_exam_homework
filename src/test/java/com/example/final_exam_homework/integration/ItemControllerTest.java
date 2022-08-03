@@ -17,16 +17,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ExtendWith(SpringExtension.class)
-@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:registerUser_WithAlreadyExistingUsername_before.sql")
-@Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:usercontroller_delete_content.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:controller_insert_users.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:controller_delete_users.sql")
 @Import(WebSecurityConfiguration.class)
 @ActiveProfiles(profiles = "test")
 public class ItemControllerTest {
@@ -176,5 +177,28 @@ public class ItemControllerTest {
                 .perform(post("/sell").content(forSaleItemInformation).contentType(MediaType.APPLICATION_JSON).header("Authorization", "Bearer " + jwt))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error", is("Given price is invalid!")));
+    }
+
+    @Test
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:controller_insert_items.sql")
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:controller_delete_items.sql")
+    public void listForSaleItems_WithValidInput_ShouldReturnListOfForSaleItems() throws Exception {
+        mockMvc
+                .perform(get("/list?page=0").header("Authorization", "Bearer " + jwt))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(20)))
+                .andExpect(jsonPath("$.[0].name", is("ACTION COMICS #1047")))
+                .andExpect(jsonPath("$.[0].photo_url", is("https://davescomicshop.com/wp-content/uploads/2022/07/0722DC064-scaled.jpg")))
+                .andExpect(jsonPath("$.[0].last_bid", is(219)))
+                .andExpect(jsonPath("$.[19].name", is("BATMAN SUPERMAN WORLDS FINEST #4")))
+                .andExpect(jsonPath("$.[19].photo_url", is("https://davescomicshop.com/wp-content/uploads/2022/07/STL230652.jpg")))
+                .andExpect(jsonPath("$.[19].last_bid", is(159)));
+    }
+
+    @Test
+    public void listForSaleItems_WithInvalidInput_ShouldReturnInvalidPageException() throws Exception {
+        mockMvc
+                .perform(get("/list?page=-1").header("Authorization", "Bearer " + jwt))
+                .andExpect(status().isBadRequest());
     }
 }

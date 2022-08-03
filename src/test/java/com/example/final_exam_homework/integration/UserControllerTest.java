@@ -22,10 +22,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ExtendWith(SpringExtension.class)
-@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:registerUser_WithAlreadyExistingUsername_before.sql")
-@Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:usercontroller_delete_content.sql")
 @Import(WebSecurityConfiguration.class)
 @ActiveProfiles(profiles = "test")
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:controller_insert_users.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:controller_delete_users.sql")
 public class UserControllerTest {
 
     @Autowired
@@ -42,7 +42,7 @@ public class UserControllerTest {
                 .perform(post("/registration").content(userRegistrationInformation).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username", is("Theodred Herstina")))
-                .andExpect(jsonPath("$.id", is(1)));
+                .andExpect(jsonPath("$.id", is(2)));
     }
 
     @Test
@@ -85,8 +85,6 @@ public class UserControllerTest {
     }
 
     @Test
-    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:registerUser_WithAlreadyExistingUsername_before.sql")
-    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:usercontroller_delete_content.sql")
     public void registerUser_WithAlreadyExistingUsername_ShouldReturnUsernameAlreadyInUseException() throws Exception {
         String userRegistrationInformation = new JSONObject()
                 .put("username", "Zeno Petceran")
@@ -130,7 +128,7 @@ public class UserControllerTest {
     @Test
     public void loginUser_WithInvalidInformation_ShouldReturnUsernameNotFoundException() throws Exception {
         String userLoginInformation = new JSONObject()
-                .put("username", "Zeno Petceran")
+                .put("username", "Theodred Herstina")
                 .put("password", "12345678")
                 .toString();
 

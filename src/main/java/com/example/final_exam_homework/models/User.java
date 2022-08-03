@@ -22,6 +22,9 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<Item> itemList;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<Bid> bidList;
+
     private Long greenBayDollars;
 
     public User() {}
