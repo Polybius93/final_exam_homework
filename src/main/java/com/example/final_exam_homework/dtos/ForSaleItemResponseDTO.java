@@ -1,34 +1,23 @@
-package com.example.final_exam_homework.models;
+package com.example.final_exam_homework.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+public class ForSaleItemResponseDTO {
 
-@Entity
-@Table(name = "items")
-public class Item {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
-
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    private User user;
-
     private String description;
+
+    @JsonProperty(value = "photo_url")
     private String photoUrl;
+
+    @JsonProperty(value = "starting_price")
     private int startingPrice;
+
+    @JsonProperty(value = "purchase_price")
     private int purchasePrice;
 
-    public Item() {}
+    public ForSaleItemResponseDTO() {}
 
     public Long getId() {
         return id;
@@ -44,14 +33,6 @@ public class Item {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public String getDescription() {

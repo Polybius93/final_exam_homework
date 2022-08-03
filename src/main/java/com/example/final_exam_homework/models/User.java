@@ -1,13 +1,8 @@
 package com.example.final_exam_homework.models;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.persistence.*;
 import java.util.List;
 
 @Entity
@@ -24,8 +19,10 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user");
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<Item> itemList;
+
+    private Long greenBayDollars;
 
     public User() {}
 
@@ -59,5 +56,13 @@ public class User {
 
     public void setItemList(List<Item> itemList) {
         this.itemList = itemList;
+    }
+
+    public Long getGreenBayDollars() {
+        return greenBayDollars;
+    }
+
+    public void setGreenBayDollars(Long greenBayDollars) {
+        this.greenBayDollars = greenBayDollars;
     }
 }

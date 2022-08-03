@@ -1,0 +1,8 @@
+UPDATE items
+SET user_id = null;
+
+DELETE FROM users
+WHERE id = 1;
+
+ALTER TABLE USERS
+    ALTER COLUMN id RESTART WITH 1;
