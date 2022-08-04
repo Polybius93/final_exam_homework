@@ -110,4 +110,10 @@ public class ApplicationExceptionHandler {
     private ErrorDTO TooLowBidException(RuntimeException exception) {
         return new ErrorDTO(exception.getMessage());
     }
+
+    @ExceptionHandler(ItemIsAlreadySoldException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    private ErrorDTO ItemIsAlreadySoldException(RuntimeException exception) {
+        return new ErrorDTO(exception.getMessage());
+    }
 }

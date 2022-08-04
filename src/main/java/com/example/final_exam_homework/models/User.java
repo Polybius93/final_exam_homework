@@ -62,6 +62,14 @@ public class User {
         this.itemToSellList = itemList;
     }
 
+    public List<Item> getItemToBuyList() {
+        return itemToBuyList;
+    }
+
+    public void setItemToBuyList(List<Item> itemToBuyList) {
+        this.itemToBuyList = itemToBuyList;
+    }
+
     public Long getGreenBayDollars() {
         return greenBayDollars;
     }

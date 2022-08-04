@@ -7,6 +7,7 @@ import com.example.final_exam_homework.models.Item;
 import com.example.final_exam_homework.models.User;
 import com.example.final_exam_homework.repositories.BidRepository;
 import com.example.final_exam_homework.repositories.ItemRepository;
+import com.example.final_exam_homework.repositories.UserRepository;
 import com.example.final_exam_homework.utils.JwtUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +21,7 @@ import java.util.List;
 @Service
 public class ItemServiceImpl implements ItemService {
 
+    private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final BidRepository bidRepository;
     private final BidService bidService;
@@ -27,7 +29,8 @@ public class ItemServiceImpl implements ItemService {
     private final ModelMapper modelMapper;
     private final JwtUtil jwtUtil;
 
-    public ItemServiceImpl(ItemRepository itemRepository, BidRepository bidRepository, BidService bidService, UserService userService, ModelMapper modelMapper, JwtUtil jwtUtil) {
+    public ItemServiceImpl(UserRepository userRepository, ItemRepository itemRepository, BidRepository bidRepository, BidService bidService, UserService userService, ModelMapper modelMapper, JwtUtil jwtUtil) {
+        this.userRepository = userRepository;
         this.itemRepository = itemRepository;
         this.bidRepository = bidRepository;
         this.bidService = bidService;
@@ -132,7 +135,7 @@ public class ItemServiceImpl implements ItemService {
 
     private void validateShowForSaleItemRequest(Long itemId) {
         if (!itemRepository.findById(itemId).isPresent()) {
-            throw new ItemNotFoundException("No item found by this id!");
+            throw new ItemNotFoundException("No item was found by this id!");
         }
     }
 
@@ -171,6 +174,15 @@ public class ItemServiceImpl implements ItemService {
         bid.setItem(item);
         bid.setValue(bidValue);
         item.getBidList().add(bid);
+        itemRepository.save(item);
+    }
+
+    private void buyItem(User user, Item item) {
+        item.setSold(true);
+        item.setBuyer(user);
+        user.setGreenBayDollars(user.getGreenBayDollars() - item.getPurchasePrice());
+        user.getItemToBuyList().add(item);
+        userRepository.save(user);
     }
 
     public ForSaleItemResponseBuyersViewDTO bidForSaleItem(BidOnItemRequestDTO bidOnItemRequestDTO, String header, Long itemId) {
@@ -180,18 +192,17 @@ public class ItemServiceImpl implements ItemService {
         Item item = findItemById(itemId);
         Long lastBid = bidService.findLastBidByItemId(itemId).getValue();
         User user = userService.findUserByUsername(jwtUtil.extractUsername(jwt));
-        if (bid > user.getGreenBayDollars()) {
+        if (item.isSold()) {
+            throw new ItemIsAlreadySoldException("Item is already sold!");
+        } else if (bid > user.getGreenBayDollars()) {
             throw new InsufficientGreenBayDollarsException("Not enough Green Bay Dollars");
         } else if (bid <= lastBid) {
-            throw new TooLowBidException("Your bid is lower than the last bid");
+            throw new TooLowBidException("Your bid is lower than the last bid!");
         } else if (bid < item.getPurchasePrice()) {
             placeBid(user, item, bid);
-            itemRepository.save(item);
             return createForSaleItemResponseBuyersViewDTO(item);
         } else {
-            item.setSold(true);
-            item.setBuyer(user);
-            itemRepository.save(item);
+            buyItem(user, item);
             return createForSaleItemResponseBuyersViewSoldDTO(item);
         }
     }

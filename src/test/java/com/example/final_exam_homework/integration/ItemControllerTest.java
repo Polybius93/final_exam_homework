@@ -57,7 +57,9 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void createForSaleItemResponse_WithInvalidInformation_ShouldReturnOkAndItemInformation() throws Exception {
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:controller_insert_users_items_bids.sql")
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:controller_delete_users_items_bids.sql")
+    public void createForSaleItemResponse_WithValidInformation_ShouldReturnOkAndItemInformation() throws Exception {
 
         String forSaleItemInformation = new JSONObject()
                 .put("name", "BATMAN KNIGHTWATCH #1")
@@ -180,8 +182,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:controller_insert_items.sql")
-    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:controller_delete_items.sql")
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:controller_insert_users_items_bids.sql")
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:controller_delete_users_items_bids.sql")
     public void listForSaleItems_WithValidInput_ShouldReturnListOfForSaleItems() throws Exception {
         mockMvc
                 .perform(get("/list?page=0").header("Authorization", "Bearer " + jwt))
@@ -203,8 +205,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:controller_insert_items.sql")
-    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:controller_delete_items.sql")
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:controller_insert_users_items_bids.sql")
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:controller_delete_users_items_bids.sql")
     public void showItem_WithValidInput_ShouldReturnRequestedItem() throws Exception {
         mockMvc
                 .perform(get("/item/{itemId}", 1).header("Authorization", "Bearer " + jwt))
@@ -218,6 +220,91 @@ public class ItemControllerTest {
         mockMvc
                 .perform(get("/item/{itemId}", 25).header("Authorization", "Bearer " + jwt))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error", is("No item found by this id!")));
+                .andExpect(jsonPath("$.error", is("No item was found by this id!")));
+    }
+
+    @Test
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:controller_insert_users_items_bids.sql")
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:controller_delete_users_items_bids.sql")
+    public void bidOnItem_WithValidInput_ShouldBidAndReturnRequestedItem() throws Exception {
+        String bidOnItem = new JSONObject()
+                .put("bid", "159")
+                .toString();
+
+        mockMvc
+                .perform(post("/item/{itemId}", 5).header("Authorization", "Bearer " + jwt).content(bidOnItem).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.bids.[0].username", is("Zeno Petceran")))
+                .andExpect(jsonPath("$.bids[0].value", is(159)));
+    }
+
+    @Test
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:controller_insert_users_items_bids.sql")
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:controller_delete_users_items_bids.sql")
+    public void bidOnItem_WithValidInput_ShouldBuyAndReturnRequestedItem() throws Exception {
+        String bidOnItem = new JSONObject()
+                .put("bid", "1600")
+                .toString();
+
+        mockMvc
+                .perform(post("/item/{itemId}", 5).header("Authorization", "Bearer " + jwt).content(bidOnItem).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.buyer", is("Zeno Petceran")));
+    }
+
+    @Test
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:controller_insert_users_items_bids.sql")
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:controller_delete_users_items_bids.sql")
+    public void bidOnItem_WithInvalidInput_ShouldReturnItemNotFoundException() throws Exception {
+        String bidOnItem = new JSONObject()
+                .put("bid", "100")
+                .toString();
+
+        mockMvc
+                .perform(post("/item/{itemId}", 25).header("Authorization", "Bearer " + jwt).content(bidOnItem).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("No item was found by this id!")));
+    }
+
+    @Test
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:controller_insert_users_items_bids.sql")
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:controller_delete_users_items_bids.sql")
+    public void bidOnItem_WithInvalidInput_ShouldReturnTooLowBidException() throws Exception {
+        String bidOnItem = new JSONObject()
+                .put("bid", "100")
+                .toString();
+
+        mockMvc
+                .perform(post("/item/{itemId}", 5).header("Authorization", "Bearer " + jwt).content(bidOnItem).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("Your bid is lower than the last bid!")));
+    }
+
+    @Test
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:controller_insert_users_items_bids.sql")
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:controller_delete_users_items_bids.sql")
+    public void bidOnItem_WithInvalidInput_ShouldReturnInsufficientGreenBayDollarsException() throws Exception {
+        String bidOnItem = new JSONObject()
+                .put("bid", "2500")
+                .toString();
+
+        mockMvc
+                .perform(post("/item/{itemId}", 5).header("Authorization", "Bearer " + jwt).content(bidOnItem).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("Not enough Green Bay Dollars")));
+    }
+
+    @Test
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:controller_insert_users_items_bids.sql")
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:controller_delete_users_items_bids.sql")
+    public void bidOnItem_WithInvalidInput_ShouldReturnItemIsAlreadySoldException() throws Exception {
+        String bidOnItem = new JSONObject()
+                .put("bid", "2500")
+                .toString();
+
+        mockMvc
+                .perform(post("/item/{itemId}", 2).header("Authorization", "Bearer " + jwt).content(bidOnItem).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("Item is already sold!")));
     }
 }

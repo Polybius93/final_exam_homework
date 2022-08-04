@@ -1,10 +1,8 @@
 package com.example.final_exam_homework.unit;
 
-import com.example.final_exam_homework.dtos.AuthenticationRequestDTO;
 import com.example.final_exam_homework.dtos.AuthenticationResponseDTO;
 import com.example.final_exam_homework.dtos.UserRegistrationRequestDTO;
 import com.example.final_exam_homework.dtos.UserRegistrationResponseDTO;
-import com.example.final_exam_homework.exceptions.*;
 import com.example.final_exam_homework.models.User;
 import com.example.final_exam_homework.repositories.UserRepository;
 import com.example.final_exam_homework.services.UserService;
@@ -12,14 +10,10 @@ import com.example.final_exam_homework.services.UserServiceImpl;
 import com.example.final_exam_homework.utils.JwtUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
