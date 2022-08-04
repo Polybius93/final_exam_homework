@@ -1,5 +1,6 @@
 package com.example.final_exam_homework.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ForSaleItemResponseMainInformationDTO {
@@ -10,7 +11,7 @@ public class ForSaleItemResponseMainInformationDTO {
     protected String photoUrl;
 
     @JsonProperty(value = "last_bid")
-    protected Long lastBid;
+    private Long lastBid;
 
     public ForSaleItemResponseMainInformationDTO() {}
 

@@ -1,13 +1,11 @@
 package com.example.final_exam_homework.unit;
 
 import com.example.final_exam_homework.dtos.ForSaleItemRequestDTO;
-import com.example.final_exam_homework.dtos.ForSaleItemResponseDTO;
-import com.example.final_exam_homework.dtos.ForSaleItemResponseMainInformationDTO;
-import com.example.final_exam_homework.exceptions.MissingNameException;
-import com.example.final_exam_homework.models.Item;
+import com.example.final_exam_homework.dtos.ForSaleItemResponseSellersViewDTO;
 import com.example.final_exam_homework.models.User;
 import com.example.final_exam_homework.repositories.BidRepository;
 import com.example.final_exam_homework.repositories.ItemRepository;
+import com.example.final_exam_homework.services.BidService;
 import com.example.final_exam_homework.services.ItemService;
 import com.example.final_exam_homework.services.ItemServiceImpl;
 import com.example.final_exam_homework.services.UserService;
@@ -16,23 +14,17 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 public class ItemServiceTest {
 
     private final ItemRepository itemRepository = Mockito.mock(ItemRepository.class);
     private final BidRepository bidRepository = Mockito.mock(BidRepository.class);
+    private final BidService bidService = Mockito.mock(BidService.class);
     private final ModelMapper modelMapper = new ModelMapper();
     private final UserService userService = Mockito.mock(UserService.class);
     private final JwtUtil jwtUtil = Mockito.mock(JwtUtil.class);
-    private final ItemService itemService = new ItemServiceImpl(itemRepository, bidRepository, userService, modelMapper, jwtUtil);
+    private final ItemService itemService = new ItemServiceImpl(itemRepository, bidRepository, bidService, userService, modelMapper, jwtUtil);
 
     @Test
     public void createForSaleItemResponse_WithValidInformation_ShouldReturnForSaleItemResponseDTO() {
@@ -47,13 +39,13 @@ public class ItemServiceTest {
         Mockito.when(jwtUtil.extractUsername("$2a$11$vYTXBdEm8oLIYD8wdTJKnORPexavwc7x6Y2wT8WMajOFM3rHpSKge")).thenReturn("Theodred Herstina");
         Mockito.when(userService.findUserByUsername(jwtUtil.extractUsername("$2a$11$vYTXBdEm8oLIYD8wdTJKnORPexavwc7x6Y2wT8WMajOFM3rHpSKge"))).thenReturn(user);
 
-        ForSaleItemResponseDTO actualForSaleItemResponseDTO = itemService.createForSaleItemAndReturnResponse(forSaleItemRequestDTOTest, headerTest);
+        ForSaleItemResponseSellersViewDTO actualForSaleItemResponseSellersViewDTO = itemService.createForSaleItemAndReturnResponse(forSaleItemRequestDTOTest, headerTest);
 
-        Assertions.assertEquals(forSaleItemRequestDTOTest.getName(), actualForSaleItemResponseDTO.getName());
-        Assertions.assertEquals(forSaleItemRequestDTOTest.getDescription(), actualForSaleItemResponseDTO.getDescription());
-        Assertions.assertEquals(forSaleItemRequestDTOTest.getPhotoUrl(), actualForSaleItemResponseDTO.getPhotoUrl());
-        Assertions.assertEquals(forSaleItemRequestDTOTest.getStartingPrice(), actualForSaleItemResponseDTO.getStartingPrice());
-        Assertions.assertEquals(forSaleItemRequestDTOTest.getPurchasePrice(), actualForSaleItemResponseDTO.getPurchasePrice());
+        Assertions.assertEquals(forSaleItemRequestDTOTest.getName(), actualForSaleItemResponseSellersViewDTO.getName());
+        Assertions.assertEquals(forSaleItemRequestDTOTest.getDescription(), actualForSaleItemResponseSellersViewDTO.getDescription());
+        Assertions.assertEquals(forSaleItemRequestDTOTest.getPhotoUrl(), actualForSaleItemResponseSellersViewDTO.getPhotoUrl());
+        Assertions.assertEquals(forSaleItemRequestDTOTest.getStartingPrice(), actualForSaleItemResponseSellersViewDTO.getStartingPrice());
+        Assertions.assertEquals(forSaleItemRequestDTOTest.getPurchasePrice(), actualForSaleItemResponseSellersViewDTO.getPurchasePrice());
     }
 
     @Test
@@ -62,21 +54,5 @@ public class ItemServiceTest {
 
         Assertions.assertEquals(0, pageable.getPageNumber());
         Assertions.assertEquals(20, pageable.getPageSize());
-    }
-
-    @Test
-    public void getForSaleItems_WithValidInformation_ShouldReturnForSaleItemResponseMainInformationDTO() {
-        List<Item> itemList = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
-            itemList.add(new Item());
-        }
-        Pageable pageable = PageRequest.of(0, 20);
-        Page<Item> itemPage = new PageImpl<Item>(itemList, pageable, itemList.size());
-        Mockito.when(itemRepository.findAllBySold(false, itemService.createPageable(0))).thenReturn(itemPage);
-
-        List<ForSaleItemResponseMainInformationDTO> forSaleItemResponseMainInformationDTOList =
-                itemService.getForSaleItemList(0);
-
-        Assertions.assertEquals(20, forSaleItemResponseMainInformationDTOList.size());
     }
 }

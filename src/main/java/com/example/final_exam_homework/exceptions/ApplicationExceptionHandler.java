@@ -86,4 +86,28 @@ public class ApplicationExceptionHandler {
     private ErrorDTO InvalidPageException(RuntimeException exception) {
         return new ErrorDTO(exception.getMessage());
     }
+
+    @ExceptionHandler(ItemNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    private ErrorDTO ItemNotFoundException(RuntimeException exception) {
+        return new ErrorDTO(exception.getMessage());
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    private ErrorDTO UserNotFoundException(RuntimeException exception) {
+        return new ErrorDTO(exception.getMessage());
+    }
+
+    @ExceptionHandler(InsufficientGreenBayDollarsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    private ErrorDTO InsufficientGreenBayDollarsException(RuntimeException exception) {
+        return new ErrorDTO(exception.getMessage());
+    }
+
+    @ExceptionHandler(TooLowBidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    private ErrorDTO TooLowBidException(RuntimeException exception) {
+        return new ErrorDTO(exception.getMessage());
+    }
 }

@@ -1,8 +1,7 @@
 package com.example.final_exam_homework.models;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,7 +15,8 @@ public class Item {
     private String name;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
-    private User user;
+    @JoinColumn(name = "seller_id")
+    private User seller;
 
     private String description;
     private String photoUrl;
@@ -24,10 +24,16 @@ public class Item {
     private int purchasePrice;
     private boolean sold;
 
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "buyer_id")
+    private User buyer;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "item")
     private List<Bid> bidList;
 
-    public Item() {}
+    public Item() {
+        bidList = new ArrayList<>();
+    }
 
     public Long getId() {
         return id;
@@ -45,12 +51,12 @@ public class Item {
         this.name = name;
     }
 
-    public User getUser() {
-        return user;
+    public User getSeller() {
+        return seller;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setSeller(User user) {
+        this.seller = user;
     }
 
     public String getDescription() {
@@ -99,5 +105,13 @@ public class Item {
 
     public void setBidList(List<Bid> bidList) {
         this.bidList = bidList;
+    }
+
+    public User getBuyer() {
+        return buyer;
+    }
+
+    public void setBuyer(User buyer) {
+        this.buyer = buyer;
     }
 }

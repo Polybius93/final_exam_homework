@@ -1,7 +1,5 @@
 package com.example.final_exam_homework.models;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javax.persistence.*;
 import java.util.List;
 
@@ -19,8 +17,11 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    private List<Item> itemList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "seller")
+    private List<Item> itemToSellList;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "buyer")
+    private List<Item> itemToBuyList;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<Bid> bidList;
@@ -53,12 +54,12 @@ public class User {
         this.password = password;
     }
 
-    public List<Item> getItemList() {
-        return itemList;
+    public List<Item> getItemToSellList() {
+        return itemToSellList;
     }
 
-    public void setItemList(List<Item> itemList) {
-        this.itemList = itemList;
+    public void setItemToSellList(List<Item> itemList) {
+        this.itemToSellList = itemList;
     }
 
     public Long getGreenBayDollars() {

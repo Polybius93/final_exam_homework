@@ -1,9 +1,6 @@
 package com.example.final_exam_homework.services;
 
-import com.example.final_exam_homework.dtos.AuthenticationRequestDTO;
-import com.example.final_exam_homework.dtos.AuthenticationResponseDTO;
-import com.example.final_exam_homework.dtos.UserRegistrationRequestDTO;
-import com.example.final_exam_homework.dtos.UserRegistrationResponseDTO;
+import com.example.final_exam_homework.dtos.*;
 import com.example.final_exam_homework.exceptions.*;
 import com.example.final_exam_homework.models.User;
 import com.example.final_exam_homework.repositories.UserRepository;
@@ -60,6 +57,14 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    public User findUserById(Long userId) {
+        if (userRepository.findById(userId).isPresent()) {
+            return userRepository.findById(userId).get();
+        } else {
+            throw new UserNotFoundException("No user found by this id!");
+        }
+    }
+
     public AuthenticationResponseDTO createAuthenticationResponseDTO(String username, String jwt) {
         AuthenticationResponseDTO authenticationResponseDTO = new AuthenticationResponseDTO(jwt);
         Long greenbayDollars = findUserByUsername(username).getGreenBayDollars();
@@ -93,5 +98,9 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         modelMapper.map(user, userRegistrationResponseDTO);
         return userRegistrationResponseDTO;
+    }
+
+    private void segg() {
+
     }
 }

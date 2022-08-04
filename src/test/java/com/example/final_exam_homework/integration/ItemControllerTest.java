@@ -189,7 +189,7 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$", hasSize(20)))
                 .andExpect(jsonPath("$.[0].name", is("ACTION COMICS #1047")))
                 .andExpect(jsonPath("$.[0].photo_url", is("https://davescomicshop.com/wp-content/uploads/2022/07/0722DC064-scaled.jpg")))
-                .andExpect(jsonPath("$.[0].last_bid", is(219)))
+                .andExpect(jsonPath("$.[0].last_bid", is(319)))
                 .andExpect(jsonPath("$.[19].name", is("BATMAN SUPERMAN WORLDS FINEST #4")))
                 .andExpect(jsonPath("$.[19].photo_url", is("https://davescomicshop.com/wp-content/uploads/2022/07/STL230652.jpg")))
                 .andExpect(jsonPath("$.[19].last_bid", is(159)));
@@ -200,5 +200,24 @@ public class ItemControllerTest {
         mockMvc
                 .perform(get("/list?page=-1").header("Authorization", "Bearer " + jwt))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:controller_insert_items.sql")
+    @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:controller_delete_items.sql")
+    public void showItem_WithValidInput_ShouldReturnRequestedItem() throws Exception {
+        mockMvc
+                .perform(get("/item/{itemId}", 1).header("Authorization", "Bearer " + jwt))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", is("ACTION COMICS #1047")))
+                .andExpect(jsonPath("$.available", is("for sale")));
+    }
+
+    @Test
+    public void showItem_WithInvalidInput_ShouldReturnRequestedItem() throws Exception {
+        mockMvc
+                .perform(get("/item/{itemId}", 25).header("Authorization", "Bearer " + jwt))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("No item found by this id!")));
     }
 }

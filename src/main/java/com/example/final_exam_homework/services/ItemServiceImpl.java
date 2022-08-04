@@ -1,11 +1,10 @@
 package com.example.final_exam_homework.services;
 
-import com.example.final_exam_homework.dtos.ForSaleItemRequestDTO;
-import com.example.final_exam_homework.dtos.ForSaleItemResponseDTO;
-import com.example.final_exam_homework.dtos.ForSaleItemResponseMainInformationDTO;
+import com.example.final_exam_homework.dtos.*;
 import com.example.final_exam_homework.exceptions.*;
 import com.example.final_exam_homework.models.Bid;
 import com.example.final_exam_homework.models.Item;
+import com.example.final_exam_homework.models.User;
 import com.example.final_exam_homework.repositories.BidRepository;
 import com.example.final_exam_homework.repositories.ItemRepository;
 import com.example.final_exam_homework.utils.JwtUtil;
@@ -23,16 +22,26 @@ public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
     private final BidRepository bidRepository;
+    private final BidService bidService;
     private final UserService userService;
     private final ModelMapper modelMapper;
     private final JwtUtil jwtUtil;
 
-    public ItemServiceImpl(ItemRepository itemRepository, BidRepository bidRepository, UserService userService, ModelMapper modelMapper, JwtUtil jwtUtil) {
+    public ItemServiceImpl(ItemRepository itemRepository, BidRepository bidRepository, BidService bidService, UserService userService, ModelMapper modelMapper, JwtUtil jwtUtil) {
         this.itemRepository = itemRepository;
         this.bidRepository = bidRepository;
+        this.bidService = bidService;
         this.userService = userService;
         this.modelMapper = modelMapper;
         this.jwtUtil = jwtUtil;
+    }
+
+    public Item findItemById(Long itemId) {
+        if (itemRepository.findById(itemId).isPresent()) {
+            return itemRepository.findById(itemId).get();
+        } else {
+            throw new ItemNotFoundException("No item found by this id!");
+        }
     }
 
     private void validateForSaleItemRequest(ForSaleItemRequestDTO forSaleItemRequestDTO) {
@@ -44,29 +53,33 @@ public class ItemServiceImpl implements ItemService {
             throw new MissingPhotoUrlException("Photo Url is missing!");
         } else if (!forSaleItemRequestDTO.getPhotoUrl().startsWith("https://") || !forSaleItemRequestDTO.getPhotoUrl().endsWith(".jpg")) {
             throw new InvalidPhotoUrlException("Photo Url is invalid!");
-        } else if (forSaleItemRequestDTO.getStartingPrice() < 0 ) {
+        } else if (forSaleItemRequestDTO.getStartingPrice() < 0) {
             throw new InvalidPriceException("Given price is invalid!");
-        } else if (forSaleItemRequestDTO.getPurchasePrice() < 0 ) {
+        } else if (forSaleItemRequestDTO.getPurchasePrice() < 0) {
             throw new InvalidPriceException("Given price is invalid!");
         }
     }
 
     private Item createForSaleItem(ForSaleItemRequestDTO forSaleItemRequestDTO, String jwt) {
         Item item = new Item();
-        item.setUser(userService.findUserByUsername(jwtUtil.extractUsername(jwt)));
+        Bid bid = new Bid();
+        item.setSeller(userService.findUserByUsername(jwtUtil.extractUsername(jwt)));
         modelMapper.map(forSaleItemRequestDTO, item);
+        bid.setValue((long) item.getStartingPrice());
+        bid.setUser(item.getSeller());
+        item.getBidList().add(bid);
         itemRepository.save(item);
         return item;
     }
 
-    private ForSaleItemResponseDTO createForSaleItemResponse(Item item) {
-        ForSaleItemResponseDTO forSaleItemResponseDTO = new ForSaleItemResponseDTO();
-        modelMapper.map(item, forSaleItemResponseDTO);
-        return forSaleItemResponseDTO;
+    private ForSaleItemResponseSellersViewDTO createForSaleItemResponse(Item item) {
+        ForSaleItemResponseSellersViewDTO forSaleItemResponseSellersViewDTO = new ForSaleItemResponseSellersViewDTO();
+        modelMapper.map(item, forSaleItemResponseSellersViewDTO);
+        return forSaleItemResponseSellersViewDTO;
     }
 
     @Override
-    public ForSaleItemResponseDTO createForSaleItemAndReturnResponse(ForSaleItemRequestDTO forSaleItemRequestDTO, String header) {
+    public ForSaleItemResponseSellersViewDTO createForSaleItemAndReturnResponse(ForSaleItemRequestDTO forSaleItemRequestDTO, String header) {
         String jwt = header.substring(7);
         validateForSaleItemRequest(forSaleItemRequestDTO);
         return createForSaleItemResponse(createForSaleItem(forSaleItemRequestDTO, jwt));
@@ -75,7 +88,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Pageable createPageable(int page) {
         if (page >= 0) {
-            return PageRequest.of(page,  20, Sort.by("id"));
+            return PageRequest.of(page, 20, Sort.by("id"));
         } else {
             throw new InvalidPageException("Page must be a positive number!");
         }
@@ -83,9 +96,9 @@ public class ItemServiceImpl implements ItemService {
 
     private ForSaleItemResponseMainInformationDTO createForSaleItemResponseMainInformationDTO(Item item) {
         ForSaleItemResponseMainInformationDTO forSaleItemResponseMainInformationDTO = new ForSaleItemResponseMainInformationDTO();
-        List<Bid> lastBid = bidRepository.findLastBid(item.getId());
+        Bid lastBid = bidService.findLastBidByItemId(item.getId());
         modelMapper.map(item, forSaleItemResponseMainInformationDTO);
-        forSaleItemResponseMainInformationDTO.setLastBid(lastBid.get(0).getValue());
+        forSaleItemResponseMainInformationDTO.setLastBid(lastBid.getValue());
         return forSaleItemResponseMainInformationDTO;
     }
 
@@ -100,5 +113,86 @@ public class ItemServiceImpl implements ItemService {
     public List<ForSaleItemResponseMainInformationDTO> getForSaleItemList(int page) {
         return createForSaleItemResponseMainInformationDTOList(itemRepository.findAllBySold(
                 false, createPageable(page)).getContent());
+    }
+
+    private BidWithUsernameDTO createBidWithUsernameDTO(Bid bid) {
+        BidWithUsernameDTO bidWithUsernameDTO = new BidWithUsernameDTO();
+        bidWithUsernameDTO.setUsername(bid.getUser().getUsername());
+        bidWithUsernameDTO.setValue(bid.getValue());
+        return bidWithUsernameDTO;
+    }
+
+    private List<BidWithUsernameDTO> createBidWithUsernameDTOList(List<Bid> bidList) {
+        List<BidWithUsernameDTO> bidWithUsernameDTOList = new ArrayList<>();
+        for (Bid bid : bidList) {
+            bidWithUsernameDTOList.add(createBidWithUsernameDTO(bid));
+        }
+        return bidWithUsernameDTOList;
+    }
+
+    private void validateShowForSaleItemRequest(Long itemId) {
+        if (!itemRepository.findById(itemId).isPresent()) {
+            throw new ItemNotFoundException("No item found by this id!");
+        }
+    }
+
+    private ForSaleItemResponseBuyersViewDTO createForSaleItemResponseBuyersViewDTO(Item item) {
+        ForSaleItemResponseBuyersViewDTO forSaleItemResponseBuyersViewDTO = new ForSaleItemResponseBuyersViewDTO();
+        List<Bid> bidList = bidRepository.findAllByItemOrderByIdDesc(item);
+        modelMapper.map(item, forSaleItemResponseBuyersViewDTO);
+        forSaleItemResponseBuyersViewDTO.setBidWithUsernameDTOList(createBidWithUsernameDTOList(bidList));
+        forSaleItemResponseBuyersViewDTO.setSellerUsername(item.getSeller().getUsername());
+        return forSaleItemResponseBuyersViewDTO;
+    }
+
+    private ForSaleItemResponseBuyersViewDTO createForSaleItemResponseBuyersViewSoldDTO(Item item) {
+        ForSaleItemResponseBuyersViewSoldDTO forSaleItemResponseBuyersViewSoldDTO = new ForSaleItemResponseBuyersViewSoldDTO();
+        List<Bid> bidList = bidRepository.findAllByItemOrderByIdDesc(item);
+        modelMapper.map(item, forSaleItemResponseBuyersViewSoldDTO);
+        forSaleItemResponseBuyersViewSoldDTO.setBidWithUsernameDTOList(createBidWithUsernameDTOList(bidList));
+        forSaleItemResponseBuyersViewSoldDTO.setSellerUsername(item.getSeller().getUsername());
+        forSaleItemResponseBuyersViewSoldDTO.setBuyerUsername(item.getBuyer().getUsername());
+        return forSaleItemResponseBuyersViewSoldDTO;
+    }
+
+    public ForSaleItemResponseBuyersViewDTO showForSaleItemResponseBuyersViewDTO(Long itemId) {
+        validateShowForSaleItemRequest(itemId);
+        Item item = findItemById(itemId);
+        if (!item.isSold()) {
+            return createForSaleItemResponseBuyersViewDTO(item);
+        } else {
+            return createForSaleItemResponseBuyersViewSoldDTO(item);
+        }
+    }
+
+    private void placeBid(User user, Item item, Long bidValue) {
+        Bid bid = new Bid();
+        bid.setUser(user);
+        bid.setItem(item);
+        bid.setValue(bidValue);
+        item.getBidList().add(bid);
+    }
+
+    public ForSaleItemResponseBuyersViewDTO bidForSaleItem(BidOnItemRequestDTO bidOnItemRequestDTO, String header, Long itemId) {
+        validateShowForSaleItemRequest(itemId);
+        String jwt = header.substring(7);
+        Long bid = bidOnItemRequestDTO.getBid();
+        Item item = findItemById(itemId);
+        Long lastBid = bidService.findLastBidByItemId(itemId).getValue();
+        User user = userService.findUserByUsername(jwtUtil.extractUsername(jwt));
+        if (bid > user.getGreenBayDollars()) {
+            throw new InsufficientGreenBayDollarsException("Not enough Green Bay Dollars");
+        } else if (bid <= lastBid) {
+            throw new TooLowBidException("Your bid is lower than the last bid");
+        } else if (bid < item.getPurchasePrice()) {
+            placeBid(user, item, bid);
+            itemRepository.save(item);
+            return createForSaleItemResponseBuyersViewDTO(item);
+        } else {
+            item.setSold(true);
+            item.setBuyer(user);
+            itemRepository.save(item);
+            return createForSaleItemResponseBuyersViewSoldDTO(item);
+        }
     }
 }

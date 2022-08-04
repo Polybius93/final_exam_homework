@@ -2,18 +2,18 @@ package com.example.final_exam_homework.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ForSaleItemResponseDTO extends ForSaleItemResponseMainInformationDTO {
+public class ForSaleItemResponseSellersViewDTO extends ForSaleItemResponseMainInformationDTO {
 
-    protected Long id;
+    private Long id;
     protected String description;
 
     @JsonProperty(value = "starting_price")
-    protected int startingPrice;
+    private int startingPrice;
 
     @JsonProperty(value = "purchase_price")
     protected int purchasePrice;
 
-    public ForSaleItemResponseDTO() {}
+    public ForSaleItemResponseSellersViewDTO() {}
 
     public Long getId() {
         return id;
