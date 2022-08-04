@@ -4,9 +4,20 @@ plugins {
     id 'java'
 }
 
+apply plugin: 'jacoco'
+
+
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
+
+jacocoTestReport {
+    reports {
+        xml.required = false
+        html.required = true
+        html.outputLocation = layout.buildDirectory.dir("${buildDir}/jacoco")
+    }
+}
 
 repositories {
     mavenCentral()
