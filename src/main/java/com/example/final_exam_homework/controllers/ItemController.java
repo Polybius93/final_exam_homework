@@ -3,7 +3,6 @@ package com.example.final_exam_homework.controllers;
 import com.example.final_exam_homework.dtos.BidOnItemRequestDTO;
 import com.example.final_exam_homework.dtos.ForSaleItemRequestDTO;
 import com.example.final_exam_homework.services.ItemService;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

@@ -4,8 +4,7 @@ public class BidOnItemRequestDTO {
 
     private Long bid;
 
-    public BidOnItemRequestDTO() {
-    }
+    public BidOnItemRequestDTO() {}
 
     public Long getBid() {
         return bid;

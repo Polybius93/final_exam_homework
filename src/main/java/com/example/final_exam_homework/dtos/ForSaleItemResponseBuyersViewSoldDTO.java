@@ -11,8 +11,7 @@ public class ForSaleItemResponseBuyersViewSoldDTO extends ForSaleItemResponseBuy
     @JsonProperty(value = "buyer")
     private String buyerUsername;
 
-    public ForSaleItemResponseBuyersViewSoldDTO() {
-    }
+    public ForSaleItemResponseBuyersViewSoldDTO() {}
 
     public String getAvailable() {
         return available;

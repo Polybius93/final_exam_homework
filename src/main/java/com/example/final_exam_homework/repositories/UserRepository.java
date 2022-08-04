@@ -8,7 +8,6 @@ import javax.persistence.Table;
 import java.util.Optional;
 
 @Repository
-@Table(name = "users")
 public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUsername(String username);

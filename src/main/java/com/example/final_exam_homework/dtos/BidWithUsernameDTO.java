@@ -5,8 +5,7 @@ public class BidWithUsernameDTO {
     private Long value;
     private String username;
 
-    public BidWithUsernameDTO() {
-    }
+    public BidWithUsernameDTO() {}
 
     public Long getValue() {
         return value;

@@ -18,8 +18,7 @@ public class Bid {
     @ManyToOne(cascade = CascadeType.PERSIST)
     private Item item;
 
-    public Bid() {
-    }
+    public Bid() {}
 
     public Long getId() {
         return id;

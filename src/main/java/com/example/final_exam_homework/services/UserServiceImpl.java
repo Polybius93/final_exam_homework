@@ -99,8 +99,4 @@ public class UserServiceImpl implements UserService {
         modelMapper.map(user, userRegistrationResponseDTO);
         return userRegistrationResponseDTO;
     }
-
-    private void segg() {
-
-    }
 }

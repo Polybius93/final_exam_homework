@@ -1,7 +1,5 @@
 package com.example.final_exam_homework.dtos;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class UserRegistrationResponseDTO {
 
     private String username;
