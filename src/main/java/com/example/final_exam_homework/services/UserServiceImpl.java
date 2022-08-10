@@ -45,6 +45,8 @@ public class UserServiceImpl implements UserService {
                 throw new InvalidPasswordLengthException("Password length should be at least 8 characters!");
             } else if (userRepository.findByUsername(authenticationRequestDTO.getUsername()).isEmpty()) {
                 throw new InvalidLoginCredentialsException("No user found by this username!");
+            } else {
+                throw new InvalidLoginCredentialsException("Password is incorrect!");
             }
         }
     }
